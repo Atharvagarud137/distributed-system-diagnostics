@@ -48,7 +48,19 @@ The API server will start at `http://localhost:8000`.
 ### Verify the Server
 
 ```bash
-curl http://localhost:8000/
+curl http://localhost:8000/health
+```
+
+### Run with Docker Compose
+
+```bash
+docker compose up --build
+```
+
+Then verify with:
+
+```bash
+curl http://localhost:8000/health
 ```
 
 ### Example Diagnosis Request

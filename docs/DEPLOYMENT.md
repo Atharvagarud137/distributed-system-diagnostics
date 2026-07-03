@@ -21,6 +21,26 @@ docker run --rm -p 8000:8000 distributed-system-diagnostics:latest
 
 Then open `http://localhost:8000/health` to verify the service is running.
 
+### Run locally with Docker Compose
+
+If you have Docker Compose available, start the stack with:
+
+```bash
+docker compose up --build
+```
+
+Or on systems with the legacy Compose binary:
+
+```bash
+docker-compose up --build
+```
+
+Then verify:
+
+```bash
+curl http://localhost:8000/health
+```
+
 ### Run locally with Python
 
 ```bash

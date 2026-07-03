@@ -1,4 +1,5 @@
-﻿from typing import Dict, List, Optional
+﻿from datetime import datetime, timezone
+from typing import Dict, List, Optional
 
 from fastapi import APIRouter, FastAPI
 from pydantic import BaseModel
@@ -42,6 +43,14 @@ def diagnose(payload: ReconciliationPayload) -> DiagnoseResponse:
     return {
         "diagnostics": [issue.model_dump() for issue in diagnostics],
         "summary": summary,
+    }
+
+
+@app.get("/health")
+def health() -> Dict[str, str]:
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
