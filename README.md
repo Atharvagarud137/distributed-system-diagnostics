@@ -1,6 +1,8 @@
 ﻿# Distributed System Health Monitor & Diagnostic Toolkit
 
-A lightweight diagnostics toolkit that identifies transaction mismatches across payment, ledger, and settlement systems. This repository is built as a forward-deployed engineering portfolio project to demonstrate system integration, root-cause analysis, and deployable diagnostics with zero external infrastructure.
+![Python CI](https://github.com/Atharvagarud137/distributed-system-diagnostics/actions/workflows/python-ci.yml/badge.svg)
+
+A lightweight diagnostics toolkit that identifies transaction mismatches across payment processor, ledger, and settlement systems. This repository is built as a forward-deployed engineering portfolio project to demonstrate system integration, root-cause analysis, and deployable diagnostics with minimal infrastructure.
 
 ## Problem Statement
 
@@ -11,29 +13,27 @@ You're a forward deployed engineer at a fintech company. Three critical systems�
 - Provides actionable remediation guidance
 - Works in constrained, low-cost environments without backend dependencies
 
-This project simulates production reconciliation workflows and returns diagnostic insights that help teams fix system mismatches faster.
-
 ## What This Solves
 
 - **Mismatch detection** across multiple systems
 - **Root-cause analysis** with severity and confidence scoring
-- **Batch diagnosis** for large transaction sets
+- **Batch diagnosis** for transaction workflows
 - **Deployability** using Docker and lightweight Python tooling
-- **Observability** through structured outputs and clear remediation hints
-- **FDE skills demonstration**: integration, debugging, documentation, and deployment
+- **Observability** through structured output and remediation guidance
+- **Portfolio showcase** for FDE skills: integration, debugging, documentation, and deployment
 
 ## Quick Start
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.11+
 - Git
 - Optional: Docker
 
 ### Local Setup
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/distributed-system-diagnostics.git
+git clone https://github.com/Atharvagarud137/distributed-system-diagnostics.git
 cd distributed-system-diagnostics
 python -m venv venv
 venv\Scripts\activate      # Windows
@@ -43,12 +43,12 @@ pip install -r requirements.txt
 python -m uvicorn src.api:app --reload
 ```
 
-The API server should start at `http://localhost:8000`.
+The API server will start at `http://localhost:8000`.
 
 ### Verify the Server
 
 ```bash
-curl http://localhost:8000/health
+curl http://localhost:8000/
 ```
 
 ### Example Diagnosis Request
@@ -61,10 +61,10 @@ curl -X POST http://localhost:8000/diagnose \
       {"id": "PAY-001", "amount": 100.00, "timestamp": "2026-07-03T10:00:00Z", "status": "completed"}
     ],
     "ledger_txns": [
-      {"id": "LED-001", "amount": 100.00, "timestamp": "2026-07-03T10:05:00Z", "status": "recorded"}
+      {"id": "PAY-001", "amount": 100.00, "timestamp": "2026-07-03T10:05:00Z", "status": "recorded"}
     ],
     "settlement_txns": [
-      {"id": "SET-001", "amount": 99.50, "timestamp": "2026-07-03T10:10:00Z", "status": "settled"}
+      {"id": "PAY-001", "amount": 100.00, "timestamp": "2026-07-03T10:10:00Z", "status": "settled"}
     ]
   }'
 ```
@@ -73,28 +73,27 @@ curl -X POST http://localhost:8000/diagnose \
 
 ```json
 {
-  "matches": 1,
-  "mismatches": 2,
-  "total_transactions": 3,
   "diagnostics": [
     {
-      "type": "timing_lag",
-      "severity": "medium",
-      "description": "Payment processed at 10:00 but recorded in ledger at 10:05 (5 min lag)",
-      "confidence": 0.92,
+      "issue_type": "timing_lag",
+      "transaction_id": "PAY-001",
+      "description": "Ledger recorded the transaction 5 minutes after payment processor.",
       "affected_systems": ["payment_processor", "ledger"],
-      "remediation": "Check network latency or ledger async processing queue"
-    },
-    {
-      "type": "amount_mismatch",
-      "severity": "high",
-      "description": "Settlement shows $99.50, ledger shows $100.00 (0.50 difference)",
-      "confidence": 0.88,
-      "affected_systems": ["ledger", "settlement"],
-      "remediation": "Investigate rounding logic or exchange rate applied in settlement"
+      "confidence": 0.90,
+      "remediation": "Review asynchronous ingestion latency and queue backpressure."
     }
-  ]
+  ],
+  "summary": {
+    "transaction_count": 1,
+    "issue_count": 1
+  }
 }
+```
+
+## Run Tests
+
+```bash
+python -m pytest -q
 ```
 
 ## Architecture Overview
@@ -102,18 +101,15 @@ curl -X POST http://localhost:8000/diagnose \
 ```text
 Client -> FastAPI API -> Reconciler -> Diagnostic Engine -> Output
                            │
-                           └── Simulator / SQLite data layer
+                           └── Simulator / Optional data layer
 ```
-
-- **API Layer**: FastAPI endpoints for `/health`, `/diagnose`, and `/batch-diagnose`
-- **Reconciliation Engine**: matches transactions across systems and identifies mismatches
-- **Diagnostics Engine**: categorizes causes, scores confidence, and recommends remediation
-- **Simulator Layer**: generates mock transaction data for testing and scenario validation
 
 ## Repository Structure
 
 ```text
 distributed-system-diagnostics/
+├── README.md
+├── Roadmap.md
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── API_REFERENCE.md
@@ -127,29 +123,23 @@ distributed-system-diagnostics/
 │   └── simulator.py
 ├── tests/
 │   ├── test_diagnostics.py
-│   └── test_reconciler.py
+│   ├── test_reconciler.py
+│   └── test_simulator.py
 ├── docker-compose.yml
-├── LICENSE
-├── README.md
-└── requirements.txt
+├── Dockerfile
+├── .github/
+│   └── workflows/
+│       └── python-ci.yml
+├── requirements.txt
+└── LICENSE
 ```
 
 ## Documentation
 
-- `docs/ARCHITECTURE.md` — design decisions and system architecture
-- `docs/API_REFERENCE.md` — API endpoint details and payload schemas
-- `docs/DEPLOYMENT.md` — Docker and deployment instructions
-- `docs/SCENARIOS.md` — reconciliation scenarios and expected outcomes
-
-## Why This Project
-
-This repository is designed to showcase skills that matter for a forward deployed engineer:
-
-- system debugging under uncertainty
-- cross-system reconciliation
-- root-cause analysis and remediation guidance
-- rapid prototyping with Python and FastAPI
-- documentation and deployment readiness
+- `docs/ARCHITECTURE.md` — design decisions and architecture
+- `docs/API_REFERENCE.md` — request/response schema and endpoint details
+- `docs/DEPLOYMENT.md` — Docker and deployment guidance
+- `docs/SCENARIOS.md` — reconciliation scenarios and expected outputs
 
 ## License
 
