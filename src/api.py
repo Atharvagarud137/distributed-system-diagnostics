@@ -30,8 +30,7 @@ class DiagnoseResponse(BaseModel):
     summary: Dict[str, int]
 
 
-@router.post("/diagnose", response_model=DiagnoseResponse)
-def diagnose(payload: ReconciliationPayload) -> DiagnoseResponse:
+def _build_diagnose_response(payload: ReconciliationPayload) -> DiagnoseResponse:
     diagnostics = diagnostics_for_payload(payload)
     summary = {
         "transaction_count": len({
@@ -44,6 +43,16 @@ def diagnose(payload: ReconciliationPayload) -> DiagnoseResponse:
         "diagnostics": [issue.model_dump() for issue in diagnostics],
         "summary": summary,
     }
+
+
+@router.post("/diagnose", response_model=DiagnoseResponse)
+def diagnose(payload: ReconciliationPayload) -> DiagnoseResponse:
+    return _build_diagnose_response(payload)
+
+
+@router.post("/batch-diagnose", response_model=DiagnoseResponse)
+def batch_diagnose(payload: ReconciliationPayload) -> DiagnoseResponse:
+    return _build_diagnose_response(payload)
 
 
 @app.get("/health")

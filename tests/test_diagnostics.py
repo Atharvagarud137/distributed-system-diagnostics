@@ -30,3 +30,23 @@ def test_api_diagnose_returns_issues() -> None:
     assert body["summary"]["transaction_count"] == 1
     assert body["summary"]["issue_count"] >= 1
     assert any(issue["issue_type"] == "timing_lag" for issue in body["diagnostics"])
+
+
+def test_api_batch_diagnose_matches_diagnose() -> None:
+    payload = {
+        "payment_processor_txns": [
+            {"id": "PAY-102", "amount": 125.0, "timestamp": "2026-07-03T13:00:00Z", "status": "completed"}
+        ],
+        "ledger_txns": [
+            {"id": "PAY-102", "amount": 125.0, "timestamp": "2026-07-03T13:03:00Z", "status": "recorded"}
+        ],
+        "settlement_txns": [],
+    }
+
+    with TestClient(app) as client:
+        response = client.post("/batch-diagnose", json=payload)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["summary"]["transaction_count"] == 1
+    assert body["summary"]["issue_count"] >= 1
+    assert any(issue["issue_type"] == "timing_lag" for issue in body["diagnostics"])
