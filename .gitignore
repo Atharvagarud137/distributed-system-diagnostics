@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific
+.vscode/
+.idea/
+*.db
+*.sqlite3
+docker-compose.override.yml
